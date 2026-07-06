@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataLens — Smart Dataset Assistant</title>
+    <meta name="description" content="Upload any CSV or Excel dataset and get instant AI-powered insights, ML model recommendations, and visual analytics.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-shell">
+
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-icon">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <div>
+                        <div class="brand-name">DataLens</div>
+                        <div class="brand-sub">Dataset Intelligence</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section-label">ANALYSIS</div>
+            <nav class="sidebar-nav">
+                <a class="nav-link active" data-section="overview" href="#">
+                    <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>
+                    <span class="nav-text">Overview</span>
+                    <span class="nav-badge hidden" id="badge-overview"></span>
+                </a>
+                <a class="nav-link disabled" data-section="structure" href="#" id="nav-structure">
+                    <span class="nav-icon"><i class="fa-solid fa-table"></i></span>
+                    <span class="nav-text">Dataset Structure</span>
+                </a>
+                <a class="nav-link disabled" data-section="insights" href="#" id="nav-insights">
+                    <span class="nav-icon"><i class="fa-solid fa-lightbulb"></i></span>
+                    <span class="nav-text">ML Insights</span>
+                </a>
+                <a class="nav-link disabled" data-section="visualizations" href="#" id="nav-visualizations">
+                    <span class="nav-icon"><i class="fa-solid fa-chart-area"></i></span>
+                    <span class="nav-text">Visualizations</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-section-label" style="margin-top:8px;">ASSISTANT</div>
+            <nav class="sidebar-nav">
+                <a class="nav-link disabled" data-section="chatbot" href="#" id="nav-chatbot">
+                    <span class="nav-icon"><i class="fa-solid fa-comment-dots"></i></span>
+                    <span class="nav-text">AI Chatbot</span>
+                    <span class="nav-pill">NEW</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="upload-sidebar-btn" id="sidebar-upload-btn">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                    <span>Upload Dataset</span>
+                </div>
+                <div class="file-indicator" id="file-indicator">
+                    <i class="fa-solid fa-circle-check icon-success"></i>
+                    <span id="file-indicator-name" class="truncate">No file loaded</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN AREA ===== -->
+        <div class="main-area">
+
+            <!-- TOP BAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="page-breadcrumb">
+                        <span class="breadcrumb-root">DataLens</span>
+                        <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+                        <span class="breadcrumb-current" id="page-title">Overview</span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <button class="theme-toggle" id="theme-toggle" title="Toggle theme">
+                        <i class="fa-solid fa-moon" id="theme-icon"></i>
+                    </button>
+                    <label class="upload-btn-top" for="dataset-file">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Upload Dataset</span>
+                    </label>
+                    <input type="file" id="dataset-file" accept=".csv,.xlsx,.xls" style="display:none">
+                </div>
+            </header>
+
+            <!-- PAGE CONTENT SCROLL AREA -->
+            <div class="page-content" id="page-content">
+
+                <!-- Loading Overlay -->
+                <div class="loading-screen hidden" id="loading-overlay">
+                    <div class="loading-inner">
+                        <div class="loading-ring">
+                            <div></div><div></div><div></div><div></div>
+                        </div>
+                        <div class="loading-text">Processing your dataset</div>
+                        <div class="loading-steps" id="loading-steps">
+                            <div class="loading-step active">Reading file...</div>
+                            <div class="loading-step">Profiling columns...</div>
+                            <div class="loading-step">Detecting ML task...</div>
+                            <div class="loading-step">Generating charts...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== EMPTY STATE ===== -->
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-hero">
+                        <div class="empty-visual">
+                            <div class="floating-card card-1">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                <span>Distribution</span>
+                            </div>
+                            <div class="floating-card card-2">
+                                <i class="fa-solid fa-brain"></i>
+                                <span>ML Task</span>
+                            </div>
+                            <div class="floating-card card-3">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>Risks</span>
+                            </div>
+                            <div class="drop-zone" id="drop-zone">
+                                <div class="drop-icon">
+                                    <i class="fa-solid fa-file-arrow-up"></i>
+                                </div>
+                                <h2>Drop your dataset here</h2>
+                                <p>or <button class="link-btn" onclick="document.getElementById('dataset-file').click()">browse files</button></p>
+                                <div class="supported-formats">
+                                    <span class="format-tag">CSV</span>
+                                    <span class="format-tag">XLSX</span>
+                                    <span class="format-tag">XLS</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="empty-features">
+                            <div class="feature-item">
+                                <div class="feature-icon fi-blue"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                                <div>
+                                    <h4>Auto Data Profiling</h4>
+                                    <p>Instantly detect column types, nulls, and duplicate rows.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon fi-green"><i class="fa-solid fa-robot"></i></div>
+                                <div>
+                                    <h4>ML Task Detection</h4>
+                                    <p>Automatically identifies if your data is suitable for classification, regression, clustering or NLP.</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon fi-amber"><i class="fa-solid fa-comments"></i></div>
+                                <div>
+                                    <h4>Conversational Chatbot</h4>
+                                    <p>Ask anything about your dataset in plain English.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== OVERVIEW ===== -->
+                <section class="view" id="view-overview">
+                    <div class="stats-row">
+                        <div class="stat-card" data-color="blue">
+                            <div class="stat-top">
+                                <span class="stat-label">Total Rows</span>
+                                <div class="stat-icon"><i class="fa-solid fa-table-rows"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-rows">—</div>
+                            <div class="stat-sub" id="stat-size-label"></div>
+                        </div>
+                        <div class="stat-card" data-color="violet">
+                            <div class="stat-top">
+                                <span class="stat-label">Columns</span>
+                                <div class="stat-icon"><i class="fa-solid fa-columns"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-cols">—</div>
+                            <div class="stat-sub" id="stat-col-breakdown"></div>
+                        </div>
+                        <div class="stat-card" data-color="rose">
+                            <div class="stat-top">
+                                <span class="stat-label">Missing Cells</span>
+                                <div class="stat-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-missing">—</div>
+                            <div class="stat-sub" id="stat-missing-pct"></div>
+                        </div>
+                        <div class="stat-card" data-color="amber">
+                            <div class="stat-top">
+                                <span class="stat-label">Duplicate Rows</span>
+                                <div class="stat-icon"><i class="fa-solid fa-copy"></i></div>
+                            </div>
+                            <div class="stat-value" id="stat-dupes">—</div>
+                            <div class="stat-sub" id="stat-memory"></div>
+                        </div>
+                    </div>
+
+                    <div class="content-grid">
+                        <div class="grid-col-wide">
+                            <div class="card">
+                                <div class="card-title">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    AI Dataset Summary
+                                </div>
+                                <div class="card-body">
+                                    <p class="summary-text" id="overview-summary">—</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid-col-narrow">
+                            <div class="card">
+                                <div class="card-title">
+                                    <i class="fa-solid fa-crosshairs"></i>
+                                    ML Task Detection
+                                </div>
+                                <div class="card-body">
+                                    <div class="detect-badge" id="detect-badge">—</div>
+                                    <div class="detect-rows">
+                                        <div class="detect-row">
+                                            <span class="dr-label">Target Column</span>
+                                            <span class="dr-value" id="detect-target">—</span>
+                                        </div>
+                                        <div class="detect-row">
+                                            <span class="dr-label">Unique Target Values</span>
+                                            <span class="dr-value" id="detect-uniques">—</span>
+                                        </div>
+                                        <div class="detect-row">
+                                            <span class="dr-label">Class Imbalanced</span>
+                                            <span class="dr-value" id="detect-imbalanced">—</span>
+                                        </div>
+                                    </div>
+                                    <div class="detect-reason" id="detect-reason"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== STRUCTURE ===== -->
+                <section class="view hidden" id="view-structure">
+                    <div class="column-type-chips" id="col-type-chips">
+                        <!-- populated dynamically -->
+                    </div>
+                    <div class="card table-card">
+                        <div class="card-title">
+                            <i class="fa-solid fa-table-list"></i>
+                            Column Details
+                            <span class="col-count-badge" id="col-count-badge"></span>
+                        </div>
+                        <div class="table-scroll">
+                            <table class="data-table" id="col-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Column Name</th>
+                                        <th>Type Tag</th>
+                                        <th>Data Type</th>
+                                        <th>Missing</th>
+                                        <th>Missing %</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="col-table-body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== ML INSIGHTS ===== -->
+                <section class="view hidden" id="view-insights">
+                    <div class="insights-grid">
+                        <div class="card">
+                            <div class="card-title"><i class="fa-solid fa-list-check"></i> Preprocessing Checklist</div>
+                            <div class="card-body">
+                                <ol class="checklist" id="preprocessing-list"></ol>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Dataset Risks</div>
+                            <div class="card-body">
+                                <ul class="risk-list" id="risk-list"></ul>
+                            </div>
+                        </div>
+                        <div class="card insights-full-width">
+                            <div class="card-title"><i class="fa-solid fa-cubes"></i> Recommended ML Models</div>
+                            <div class="card-body">
+                                <div class="model-grid" id="model-grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== VISUALIZATIONS ===== -->
+                <section class="view hidden" id="view-visualizations">
+                    <div class="charts-grid">
+                        <div class="card chart-card">
+                            <div class="card-title"><i class="fa-solid fa-bar-chart"></i> Missing Values by Column</div>
+                            <div class="chart-display" id="display-missing">
+                                <img id="img-missing" class="chart-img hidden" src="" alt="">
+                                <div class="chart-empty" id="empty-missing">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>No missing values — clean data!</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card chart-card">
+                            <div class="card-title"><i class="fa-solid fa-circle-half-stroke"></i> Target Distribution</div>
+                            <div class="chart-display" id="display-target">
+                                <img id="img-target" class="chart-img hidden" src="" alt="">
+                                <div class="chart-empty" id="empty-target">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <span>Not available for this target type.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card chart-card chart-wide">
+                            <div class="card-title"><i class="fa-solid fa-heat"></i> Feature Correlation Heatmap</div>
+                            <div class="chart-display" id="display-corr">
+                                <img id="img-corr" class="chart-img hidden" src="" alt="">
+                                <div class="chart-empty" id="empty-corr">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                    <span>Requires at least 2 numerical columns.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== CHATBOT ===== -->
+                <section class="view view-chat hidden" id="view-chatbot">
+                    <div class="chat-wrap">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="msg bot-msg">
+                                <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
+                                <div class="msg-bubble">
+                                    <p>Hi! I'm DataLens Assistant. Once you upload a dataset, I can answer questions about it — try asking about missing values, the ML problem type, recommended models, or feature risks.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-footer">
+                            <div class="quick-chips" id="quick-chips">
+                                <button class="chip" data-q="Summarize this dataset for me">📋 Summary</button>
+                                <button class="chip" data-q="What is the target column and problem type?">🎯 Target</button>
+                                <button class="chip" data-q="Which columns have missing values?">❓ Missing</button>
+                                <button class="chip" data-q="Which ML models are recommended?">🤖 Models</button>
+                                <button class="chip" data-q="What preprocessing steps should I follow?">🔧 Preprocessing</button>
+                                <button class="chip" data-q="What risks or warnings are detected in this dataset?">⚠️ Risks</button>
+                            </div>
+                            <div class="chat-input-row">
+                                <input id="chat-input" type="text" placeholder="Ask anything about your dataset..." autocomplete="off">
+                                <button id="chat-send" class="send-btn">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
